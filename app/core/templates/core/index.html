@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django Load Balancing Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 { color: #1a73e8; }
+        .hostname {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #d93025;
+            margin: 1rem 0;
+            padding: 1rem;
+            border: 2px dashed #d93025;
+            border-radius: 8px;
+        }
+        .refresh-btn {
+            margin-top: 1.5rem;
+            padding: 10px 20px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Django Cluster Status</h1>
+        <p>You are currently connected to server:</p>
+        <div class="hostname">{{ hostname }}</div>
+        <p>Message: Hello from Django Cluster</p>
+        <button class="refresh-btn" onclick="location.reload()">Refresh to check Load Balancing</button>
+    </div>
+</body>
+</html>

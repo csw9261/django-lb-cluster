@@ -1,0 +1,43 @@
+services:
+  # 첫 번째 Django 컨테이너
+  web1:
+    build: ./app
+    container_name: django-web1
+    hostname: django-web1
+    # 외부로 포트를 노출하지 않고 컨테이너 네트워크 내에서만 8888 사용
+    expose:
+      - "8888"
+    restart: always
+
+  # 두 번째 Django 컨테이너
+  web2:
+    build: ./app
+    container_name: django-web2
+    hostname: django-web2
+    expose:
+      - "8888"
+    restart: always
+
+  # 세 번째 Django 컨테이너
+  web3:
+    build: ./app
+    container_name: django-web3
+    hostname: django-web3
+    expose:
+      - "8888"
+    restart: always
+
+  # Nginx 로드 밸런서
+  nginx:
+    image: nginx:latest
+    container_name: django-nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      # 외부의 8888 포트를 Nginx의 80번 포트(nginx.conf에서 설정한 listen 80)로 연결
+      - "8888:80"
+    depends_on:
+      - web1
+      - web2
+      - web3
+    restart: always

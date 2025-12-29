@@ -20,5 +20,5 @@ COPY . .
 # 8888 포트 열기
 EXPOSE 8888
 
-# 서버 실행 명령어 (0.0.0.0으로 바인딩하여 외부 접속 허용)
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8888"]
+# Gunicorn으로 서버 실행 (마이그레이션 체크 없이 실행)
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8888"]

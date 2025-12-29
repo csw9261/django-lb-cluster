@@ -83,12 +83,21 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "crate",
+        "NAME": "doc",  # CrateDB 기본 스키마
         "USER": "crate",
         "PASSWORD": "",
         "HOST": "crate-node1",
         "PORT": "5432",
     }
+}
+
+# CrateDB는 Django 마이그레이션을 지원하지 않으므로 비활성화
+MIGRATION_MODULES = {
+    'auth': None,
+    'contenttypes': None,
+    'sessions': None,
+    'admin': None,
+    'core': None,
 }
 
 

@@ -73,6 +73,26 @@ depends_on:
 - `start_period`: 클러스터 초기화 시간(30초)을 고려하여 healthcheck 실패를 무시합니다.
 - `service_healthy`: DB가 healthy 상태가 될 때까지 Django 컨테이너 시작을 대기합니다.
 
+## CrateDB + Django 연동
+
+### 호환성 이슈
+CrateDB는 PostgreSQL 와이어 프로토콜을 지원하지만, Django의 PostgreSQL 백엔드와 완전히 호환되지 않습니다.
+- Django 시작 시 마이그레이션 체크 과정에서 PostgreSQL 시스템 카탈로그(`pg_class`, `pg_namespace` 등)를 조회
+- CrateDB는 해당 시스템 테이블을 지원하지 않아 `Schema 'crate' unknown` 에러 발생
+
+### 해결 방법: Gunicorn 사용
+Django 개발 서버(`runserver`) 대신 **Gunicorn**을 사용하여 마이그레이션 체크를 우회합니다.
+
+```dockerfile
+# Dockerfile
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8888"]
+```
+
+### Django ORM 사용 방식
+- `models.py`는 ORM 쿼리 빌더 용도로만 사용
+- 테이블 생성/변경은 CrateDB에서 직접 SQL로 수행
+- Django 마이그레이션(`makemigrations`, `migrate`)은 사용하지 않음
+
 ## 향후 계획 (Next Steps)
 
 ### 1. 회원가입 및 로그인 구현

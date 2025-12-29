@@ -41,3 +41,51 @@ services:
       - web2
       - web3
     restart: always
+
+  # CrateDB Node 1 (Seed / Master)
+  crate-node1:
+    image: crate:latest
+    container_name: crate-node1
+    ports:
+      - "4200:4200"
+      - "5432:5432"
+    command: >
+      crate
+      -Cnetwork.host=_site_
+      -Ccluster.name=crate-cluster
+      -Cnode.name=crate-node1
+      -Cdiscovery.seed_hosts=crate-node2,crate-node3
+      -Ccluster.initial_master_nodes=crate-node1,crate-node2,crate-node3
+      -Cgateway.expected_data_nodes=3
+      -Cgateway.recover_after_data_nodes=2
+    restart: always
+
+  # CrateDB Node 2
+  crate-node2:
+    image: crate:latest
+    container_name: crate-node2
+    command: >
+      crate
+      -Cnetwork.host=_site_
+      -Ccluster.name=crate-cluster
+      -Cnode.name=crate-node2
+      -Cdiscovery.seed_hosts=crate-node1,crate-node3
+      -Ccluster.initial_master_nodes=crate-node1,crate-node2,crate-node3
+      -Cgateway.expected_data_nodes=3
+      -Cgateway.recover_after_data_nodes=2
+    restart: always
+
+  # CrateDB Node 3
+  crate-node3:
+    image: crate:latest
+    container_name: crate-node3
+    command: >
+      crate
+      -Cnetwork.host=_site_
+      -Ccluster.name=crate-cluster
+      -Cnode.name=crate-node3
+      -Cdiscovery.seed_hosts=crate-node1,crate-node2
+      -Ccluster.initial_master_nodes=crate-node1,crate-node2,crate-node3
+      -Cgateway.expected_data_nodes=3
+      -Cgateway.recover_after_data_nodes=2
+    restart: always

@@ -49,6 +49,29 @@ docker-compose up --build -d
 - **로드 밸런싱**: Nginx를 통해 트래픽을 분산하고 부하를 관리합니다.
 - **컨테이너 식별**: 각 응답이 어느 컨테이너에서 생성되었는지 추적 가능합니다.
 - **컨테이너화**: 모든 인프라를 Docker 환경으로 구성하여 배포가 용이합니다.
+- **서비스 의존성 관리**: CrateDB healthcheck를 통해 DB가 완전히 준비된 후 Django 서버가 시작됩니다.
+
+## 서비스 시작 순서 (Healthcheck)
+Django 컨테이너는 CrateDB가 완전히 준비될 때까지 대기한 후 시작됩니다.
+
+```yaml
+# CrateDB healthcheck 설정
+healthcheck:
+  test: ["CMD-SHELL", "crash --host crate-node1:4200 -c 'SELECT 1'"]
+  interval: 10s
+  timeout: 5s
+  retries: 5
+  start_period: 30s
+
+# Django 컨테이너 의존성 설정
+depends_on:
+  crate-node1:
+    condition: service_healthy
+```
+
+- `crash`: CrateDB 내장 CLI 도구로 실제 쿼리 실행 가능 여부를 확인합니다.
+- `start_period`: 클러스터 초기화 시간(30초)을 고려하여 healthcheck 실패를 무시합니다.
+- `service_healthy`: DB가 healthy 상태가 될 때까지 Django 컨테이너 시작을 대기합니다.
 
 ## 향후 계획 (Next Steps)
 

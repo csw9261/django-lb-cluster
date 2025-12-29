@@ -7,6 +7,9 @@ services:
     # 외부로 포트를 노출하지 않고 컨테이너 네트워크 내에서만 8888 사용
     expose:
       - "8888"
+    depends_on:
+      crate-node1:
+        condition: service_healthy
     restart: always
 
   # 두 번째 Django 컨테이너
@@ -16,6 +19,9 @@ services:
     hostname: django-web2
     expose:
       - "8888"
+    depends_on:
+      crate-node1:
+        condition: service_healthy
     restart: always
 
   # 세 번째 Django 컨테이너
@@ -25,6 +31,9 @@ services:
     hostname: django-web3
     expose:
       - "8888"
+    depends_on:
+      crate-node1:
+        condition: service_healthy
     restart: always
 
   # Nginx 로드 밸런서
@@ -58,6 +67,12 @@ services:
       -Ccluster.initial_master_nodes=crate-node1,crate-node2,crate-node3
       -Cgateway.expected_data_nodes=3
       -Cgateway.recover_after_data_nodes=2
+    healthcheck:
+      test: ["CMD-SHELL", "crash --host crate-node1:4200 -c 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: always
 
   # CrateDB Node 2

@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "core",
+    "accounts",
 ]
 
 MIDDLEWARE = [
@@ -98,7 +99,11 @@ MIGRATION_MODULES = {
     'sessions': None,
     'admin': None,
     'core': None,
+    'accounts': None,
 }
+
+# 세션 설정
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # DB 세션 (django_session 테이블 사용)
 
 
 # Password validation

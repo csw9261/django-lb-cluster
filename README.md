@@ -11,9 +11,11 @@
 - app/: Django 프로젝트 소스 코드
     - config/: Django 프로젝트 설정
     - core/: 메인 로직 앱 (API 및 UI)
+    - accounts/: 회원 관련 앱 (회원가입, 로그인, 로그아웃)
     - Dockerfile: Django 컨테이너 빌드 명세서
 - nginx/: Nginx 설정 파일
     - nginx.conf: 4가지 로드 밸런싱 알고리즘이 미리 정의되어 있음
+- sql/: CrateDB 테이블 초기화 스크립트
 - docker-compose.yml: 전체 서비스(Nginx + Django 3개 + CrateDB 3개) 구성 및 실행 정의
 
 ## 시작하기
@@ -32,6 +34,9 @@ docker-compose up --build -d
     - 현재 어느 서버 컨테이너에 연결되었는지 시각적으로 확인할 수 있습니다.
 - JSON API: http://127.0.0.1:8888/api/hello/
     - {"message": "...", "hostname": "django-webX"} 형태의 데이터를 반환합니다.
+- 회원가입: http://127.0.0.1:8888/accounts/signup/
+- 로그인: http://127.0.0.1:8888/accounts/login/
+- 로그인 기록: http://127.0.0.1:8888/accounts/logs/
 - CrateDB Admin UI: http://127.0.0.1:4200/
     - 클러스터의 상태와 노드 정보를 대시보드에서 확인할 수 있습니다.
 
@@ -50,6 +55,8 @@ docker-compose up --build -d
 - **컨테이너 식별**: 각 응답이 어느 컨테이너에서 생성되었는지 추적 가능합니다.
 - **컨테이너화**: 모든 인프라를 Docker 환경으로 구성하여 배포가 용이합니다.
 - **서비스 의존성 관리**: CrateDB healthcheck를 통해 DB가 완전히 준비된 후 Django 서버가 시작됩니다.
+- **회원 관리**: 회원가입, 로그인/로그아웃 기능 및 로그인 기록 조회를 제공합니다.
+- **세션 관리**: CrateDB에 세션을 저장하여 로드 밸런싱 환경에서도 로그인 상태를 유지합니다.
 
 ## 서비스 시작 순서 (Healthcheck)
 Django 컨테이너는 CrateDB가 완전히 준비될 때까지 대기한 후 시작됩니다.
@@ -93,12 +100,13 @@ CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8888"]
 - 테이블 생성/변경은 CrateDB에서 직접 SQL로 수행
 - Django 마이그레이션(`makemigrations`, `migrate`)은 사용하지 않음
 
+## 세션 관리 (Session Management)
+
+### 현재 구현 방식: DB 세션
+Django 세션을 CrateDB에 저장하여 모든 Django 노드가 동일한 세션 정보를 공유합니다.
+
 ## 향후 계획 (Next Steps)
 
-### 1. 회원가입 및 로그인 구현
-- **회원가입**: 간단한 회원가입 기능 구현 및 DB 저장
-- **로그인 기록**: 로그인 성공 시 로그인 기록 저장
-
-### 2. 세션 클러스터링 (Session Clustering)
-- **목표**: Nginx 로드 밸런싱의 Least Connections (최소 연결 기반) 알고리즘 환경에서도 로그인 상태 유지
-- **Redis 적용**: 로그인 세션 저장소로 Redis 사용하여 세션 공유 구현
+### 1. Redis 세션 클러스터링
+- **목표**: 더 빠른 세션 조회를 위해 Redis를 세션 저장소로 사용
+- **장점**: 인메모리 저장으로 DB 부하 감소, TTL 자동 관리

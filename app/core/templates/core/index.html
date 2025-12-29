@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,24 +32,56 @@
             border: 2px dashed #d93025;
             border-radius: 8px;
         }
-        .refresh-btn {
-            margin-top: 1.5rem;
+        .btn {
+            margin-top: 1rem;
             padding: 10px 20px;
             background-color: #1a73e8;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
         }
+        .btn:hover { background-color: #1557b0; }
+        .btn-secondary { background-color: #5f6368; }
+        .btn-secondary:hover { background-color: #3c4043; }
+        .btn-logout { background-color: #d93025; }
+        .btn-logout:hover { background-color: #a50e0e; }
+        .user-info {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #e8f5e9;
+            border-radius: 8px;
+            color: #1b5e20;
+        }
+        .buttons { margin-top: 1.5rem; }
+        .buttons a, .buttons button { margin: 0 5px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Django Cluster Status</h1>
-        <p>You are currently connected to server:</p>
+
+        {% if username %}
+        <div class="user-info">
+            <strong>{{ username }}</strong>님, 환영합니다!
+        </div>
+        {% endif %}
+
+        <p>현재 연결된 서버:</p>
         <div class="hostname">{{ hostname }}</div>
-        <p>Message: Hello from Django Cluster</p>
-        <button class="refresh-btn" onclick="location.reload()">Refresh to check Load Balancing</button>
+
+        <div class="buttons">
+            <button class="btn" onclick="location.reload()">새로고침</button>
+
+            {% if username %}
+            <a href="{% url 'accounts:logout' %}" class="btn btn-logout">로그아웃</a>
+            {% else %}
+            <a href="{% url 'accounts:login' %}" class="btn">로그인</a>
+            <a href="{% url 'accounts:signup' %}" class="btn btn-secondary">회원가입</a>
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>

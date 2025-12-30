@@ -102,8 +102,21 @@ MIGRATION_MODULES = {
     'accounts': None,
 }
 
-# 세션 설정
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # DB 세션 (django_session 테이블 사용)
+# 세션 설정 - Redis Cluster 사용
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
+# Redis Cluster 캐시 설정 - 커스텀 Connection Factory 사용
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://172.28.0.21:7001/0',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'CONNECTION_FACTORY': 'config.redis_cluster_factory.RedisClusterConnectionFactory',
+        },
+    }
+}
 
 
 # Password validation
